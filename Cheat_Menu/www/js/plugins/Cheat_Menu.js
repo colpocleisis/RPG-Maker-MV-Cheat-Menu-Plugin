@@ -22,6 +22,8 @@ Cheat_Menu.weapon_selection = 1;
 Cheat_Menu.armor_selection = 1;
 Cheat_Menu.move_amounts = [0.5, 1, 1.5, 2];
 Cheat_Menu.move_amount_index = 1;
+Cheat_Menu.params_selection = 0; //Wolfzq params inital value === 0
+Cheat_Menu.paramscount_selection = 0; //Wolfzq paramscount inital value === 0
 
 Cheat_Menu.variable_selection = 1;
 Cheat_Menu.switch_selection = 1;
@@ -62,6 +64,8 @@ Cheat_Menu.initial_values.saved_positions = [{m: -1, x: -1, y: -1}, {m: -1, x: -
 Cheat_Menu.initial_values.teleport_location = {m: 1, x: 0, y: 0};
 Cheat_Menu.initial_values.speed = null;
 Cheat_Menu.initial_values.speed_unlocked = true;
+Cheat_Menu.initial_values.params_selection = 0; // Wolfzq
+Cheat_Menu.initial_values.paramscount_selection = 0; // Wolfzq
 
 /////////////////////////////////////////////////
 // Cheat Functions
@@ -284,6 +288,20 @@ Cheat_Menu.toggle_switch = function(switch_id) {
 Cheat_Menu.teleport = function(map_id, x_pos, y_pos) {
 	$gamePlayer.reserveTransfer(map_id, x_pos, y_pos, $gamePlayer.direction(), 0);
 	$gamePlayer.setPosition(x_pos, y_pos);
+};
+
+//Set wolfzq player _params
+Cheat_Menu.set_params = function(params_selection, amount) {
+	if (Object.keys($wolfzqParams)[params_selection] != undefined) {
+		$w.addP(Object.keys($wolfzqParams)[params_selection], amount);
+	}
+};
+
+//Set wolfzq player _paramscount
+Cheat_Menu.set_paramscount = function(paramscount_selection, amount) {
+	if (Object.keys($wolfzqParamsCount)[paramscount_selection] != undefined) {
+		$w.addPC(Object.keys($wolfzqParamsCount)[paramscount_selection], amount);
+	}
 };
 
 /////////////////////////////////////////////////
@@ -1295,6 +1313,97 @@ Cheat_Menu.append_teleport = function (key1, key2, key3, key4, key5, key6, key7)
 	Cheat_Menu.append_cheat("Teleport", "Activate", key7, Cheat_Menu.teleport_current_location);
 };
 
+// Left and right scrollers for handling switching between params selected
+Cheat_Menu.scroll_params = function(direction, event) {
+	if (direction == "left") {
+		Cheat_Menu.params_selection--;
+		if (Cheat_Menu.params_selection < 0) {
+			Cheat_Menu.params_selection = Object.keys($wolfzqParams).length - 1;
+		}
+	}
+	else {
+		Cheat_Menu.params_selection++;
+		if (Cheat_Menu.params_selection >= Object.keys($wolfzqParams).length) {
+			Cheat_Menu.params_selection = 0;
+		}
+	}
+	SoundManager.playSystemSound(0);
+	Cheat_Menu.update_menu();
+};
+
+// handlers for the params cheat
+Cheat_Menu.apply_current_params = function(direction, event) {
+	var amount = Cheat_Menu.amounts[Cheat_Menu.amount_index];
+	if (direction == "left") {
+		amount = -amount;
+		SoundManager.playSystemSound(2);
+	}
+	else {
+		SoundManager.playSystemSound(1);
+	}
+	Cheat_Menu.set_params(Cheat_Menu.params_selection, amount);
+	Cheat_Menu.update_menu();
+};
+
+// append the params cheat to the menu
+Cheat_Menu.append_params_selection = function(key1, key2, key3, key4) {
+	Cheat_Menu.append_title("Basic Attributes");
+	var current_params = "";
+	current_params = Object.keys($wolfzqParams)[Cheat_Menu.params_selection];
+
+	Cheat_Menu.append_scroll_selector(current_params, key1, key2, Cheat_Menu.scroll_params);
+	var current_params_amount = 0;
+	if ($w._params[Object.keys($wolfzqParams)[Cheat_Menu.params_selection]] != undefined) {
+		current_params_amount = $w._params[Object.keys($wolfzqParams)[Cheat_Menu.params_selection]];
+	}
+	Cheat_Menu.append_scroll_selector(current_params_amount, key3, key4, Cheat_Menu.apply_current_params);
+};
+
+// Left and right scrollers for handling switching between paramscount selected
+Cheat_Menu.scroll_paramscount = function(direction, event) {
+	if (direction == "left") {
+		Cheat_Menu.paramscount_selection--;
+		if (Cheat_Menu.paramscount_selection < 0) {
+			Cheat_Menu.paramscount_selection = Object.keys($wolfzqParamsCount).length - 1;
+		}
+	}
+	else {
+		Cheat_Menu.paramscount_selection++;
+		if (Cheat_Menu.paramscount_selection >= Object.keys($wolfzqParamsCount).length) {
+			Cheat_Menu.paramscount_selection = 0;
+		}
+	}
+	SoundManager.playSystemSound(0);
+	Cheat_Menu.update_menu();
+};
+
+// handlers for the paramscount cheat
+Cheat_Menu.apply_current_paramscount = function(direction, event) {
+	var amount = Cheat_Menu.amounts[Cheat_Menu.amount_index];
+	if (direction == "left") {
+		amount = -amount;
+		SoundManager.playSystemSound(2);
+	}
+	else {
+		SoundManager.playSystemSound(1);
+	}
+	Cheat_Menu.set_paramscount(Cheat_Menu.paramscount_selection, amount);
+	Cheat_Menu.update_menu();
+};
+
+// append the paramscount cheat to the menu
+Cheat_Menu.append_paramscount_selection = function(key1, key2, key3, key4) {
+	Cheat_Menu.append_title("Behaviour Attributes");
+	var current_paramscount = "";
+	current_paramscount = Object.keys($wolfzqParamsCount)[Cheat_Menu.paramscount_selection];
+
+	Cheat_Menu.append_scroll_selector(current_paramscount, key1, key2, Cheat_Menu.scroll_paramscount);
+	var current_paramscount_amount = 0;
+	if ($w._paramsCount[Object.keys($wolfzqParamsCount)[Cheat_Menu.paramscount_selection]] != undefined) {
+		current_paramscount_amount = $w._paramsCount[Object.keys($wolfzqParamsCount)[Cheat_Menu.paramscount_selection]];
+	}
+	Cheat_Menu.append_scroll_selector(current_paramscount_amount, key3, key4, Cheat_Menu.apply_current_paramscount);
+};
 
 //////////////////////////////////////////////////////////////////////////////////
 // Final Functions for building each Menu and function list for updating the menu
@@ -1306,6 +1415,20 @@ if (typeof Cheat_Menu.menus == "undefined") { Cheat_Menu.menus = []; }
 //	appended in reverse order at the front so they will
 //	appear first no matter the plugin load order for any
 //	extension plugins
+
+// Add paramscount menu
+Cheat_Menu.menus.splice(0, 0, function() {
+	Cheat_Menu.append_cheat_title("Wolfzq Parameters 2");
+	Cheat_Menu.append_amount_selection(4, 5);
+	Cheat_Menu.append_paramscount_selection(6, 7, 8, 9);
+});
+
+// Add params menu
+Cheat_Menu.menus.splice(0, 0, function() {
+	Cheat_Menu.append_cheat_title("Wolfzq Parameters 1");
+	Cheat_Menu.append_amount_selection(4, 5);
+	Cheat_Menu.append_params_selection(6, 7, 8, 9);
+});
 
 Cheat_Menu.menus.splice(0, 0, function() {
 	Cheat_Menu.append_cheat_title("Teleport");
